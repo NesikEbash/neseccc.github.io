@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Локальный Чат</title>
+    <title>Простой Чат</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -96,7 +95,7 @@
             return username;
         }
 
-        // Загрузка сообщений
+        // Загружаем все сообщения из localStorage
         function loadMessages() {
             const messages = JSON.parse(localStorage.getItem('messages')) || [];
             messagesContainer.innerHTML = ''; // Очистить контейнер сообщений
@@ -128,17 +127,11 @@ const username = getUsername(); // Получаем имя пользовате�
             }
         }
 
-        // Обработчик изменений в localStorage (для других вкладок)
-        window.addEventListener('storage', function(event) {
-            if (event.key === 'messages') {
-                loadMessages(); // Перезагружаем сообщения, если они изменились
-            }
-        });
-
         // Загружаем сообщения при загрузке страницы
         loadMessages();
     </script>
 
 </body>
 </html>
+
 
