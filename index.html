@@ -85,56 +85,39 @@
         const messagesContainer = document.getElementById('messagesContainer');
         const messageInput = document.getElementById('messageInput');
 
-        // Функция для отправки сообщения
+        // Отправка сообщения
         function sendMessage() {
             const message = messageInput.value.trim();
             if (message) {
                 const messages = JSON.parse(localStorage.getItem('messages')) || [];
-                messages.push({ text: message, timestamp: new Date().toISOString() }); // Сохраняем сообщение
+                messages.push({ text: message }); // Добавляем сообщение в массив
                 localStorage.setItem('messages', JSON.stringify(messages)); // Сохраняем в localStorage
                 messageInput.value = ''; // Очищаем поле ввода
-                loadMessages(); // Обновляем список сообщений
+                loadMessages(); // Обновляем чат
             }
         }
 
-        // Функция для загрузки сообщений
+        // Загрузка сообщений
         function loadMessages() {
             const messages = JSON.parse(localStorage.getItem('messages')) || [];
-            messagesContainer.innerHTML = ''; // Очистить контейнер сообщений
+            messagesContainer.innerHTML = ''; // Очищаем контейнер сообщений
             messages.forEach(message => {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message');
-                if (isMessageMine(message.timestamp)) {
-                    messageDiv.classList.add('you'); // Помечаем ваше сообщение
-                    messageDiv.textContent = Вы: ${message.text};
-                } else {
-                    messageDiv.classList.add('other'); // Помечаем сообщение собеседника
-                    messageDiv.textContent = Собеседник: ${message.text};
-                }
+                messageDiv.classList.add('you'); // Все сообщения отображаются как "Ваши"
+                messageDiv.textContent = Вы: ${message.text}; // Отображаем сообщение
                 messagesContainer.appendChild(messageDiv);
             });
             messagesContainer.scrollTop = messagesContainer.scrollHeight; // Прокручиваем вниз
-}
-
-        // Функция для проверки, ваше ли это сообщение
-        function isMessageMine(timestamp) {
-            const currentTimestamp = new Date().toISOString();
-            const messageTime = new Date(timestamp).getTime();
-            const currentTime = new Date(currentTimestamp).getTime();
-            const timeDifference = Math.abs(currentTime - messageTime);
-
-            // Если разница во времени между отправкой сообщения и текущим временем меньше 10 секунд — это ваше сообщение
-            return timeDifference < 10000; 
         }
 
         // Слушаем изменения в localStorage (для других вкладок)
         window.addEventListener('storage', function(event) {
             if (event.key === 'messages') {
-                loadMessages(); // Обновляем сообщения при изменении localStorage
+                loadMessages(); // Обновляем чат при изменении localStorage
             }
         });
-
-        // Загружаем сообщения при загрузке страницы
+// Загружаем сообщения при загрузке страницы
         loadMessages();
     </script>
 
