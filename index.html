@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Локальный Чат</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .chat-container {
+            width: 400px;
+            height: 600px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+        .messages {
+            padding: 10px;
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ddd;
+        }
+        .input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #fff;
+            border-top: 1px solid #ddd;
+        }
+        .input-container input {
+            width: 80%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+        .input-container button {
+            width: 20%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: #4CAF50;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .input-container button:hover {
+            background-color: #45a049;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .message.you {
+            background-color: #d1f7c4;
+            text-align: right;
+        }
+        .message.other {
+            background-color: #f1f1f1;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="chat-container">
+        <div class="messages" id="messagesContainer"></div>
+        <div class="input-container">
+            <input type="text" id="messageInput" placeholder="Введите сообщение..." onkeydown="if(event.key === 'Enter') sendMessage()">
+            <button onclick="sendMessage()">Отправить</button>
+        </div>
+    </div>
+
+    <script>
+        const messagesContainer = document.getElementById('messagesContainer');
+        const messageInput = document.getElementById('messageInput');
+
+        // Функция для получения имени пользователя
+        function getUsername() {
+            let username = localStorage.getItem('username');
+            if (!username) {
+                username = prompt("Введите ваше имя:");
+                localStorage.setItem('username', username); // Сохраняем имя в localStorage
+            }
+            return username;
+        }
+
+        // Загрузка сообщений
+        function loadMessages() {
+            const messages = JSON.parse(localStorage.getItem('messages')) || [];
+            messagesContainer.innerHTML = ''; // Очистить контейнер сообщений
+            messages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('message');
+                if (message.username === getUsername()) {
+                    messageDiv.classList.add('you'); // Если сообщение от текущего пользователя
+                    messageDiv.textContent = Вы: ${message.text};
+                } else {
+                    messageDiv.classList.add('other'); // Если сообщение от другого пользователя
+                    messageDiv.textContent = ${message.username}: ${message.text};
+                }
+                messagesContainer.appendChild(messageDiv);
+            });
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Прокручиваем вниз
+        }
+
+        // Отправка сообщения
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message) {
+const username = getUsername(); // Получаем имя пользователя
+                const messages = JSON.parse(localStorage.getItem('messages')) || [];
+                messages.push({ text: message, username: username }); // Добавляем новое сообщение
+                localStorage.setItem('messages', JSON.stringify(messages)); // Сохраняем сообщение в localStorage
+                messageInput.value = ''; // Очищаем поле ввода
+                loadMessages(); // Обновляем список сообщений
+            }
+        }
+
+        // Обработчик изменений в localStorage (для других вкладок)
+        window.addEventListener('storage', function(event) {
+            if (event.key === 'messages') {
+                loadMessages(); // Перезагружаем сообщения, если они изменились
+            }
+        });
+
+        // Загружаем сообщения при загрузке страницы
+        loadMessages();
+    </script>
+
+</body>
+</html>
+
