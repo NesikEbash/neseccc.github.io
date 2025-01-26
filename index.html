@@ -85,39 +85,44 @@
         const messagesContainer = document.getElementById('messagesContainer');
         const messageInput = document.getElementById('messageInput');
 
-        // Отправка сообщения
+        // Функция для отправки сообщения
         function sendMessage() {
             const message = messageInput.value.trim();
             if (message) {
                 const messages = JSON.parse(localStorage.getItem('messages')) || [];
-                messages.push({ text: message }); // Добавляем сообщение в массив
+                messages.push({ text: message }); // Добавляем новое сообщение
                 localStorage.setItem('messages', JSON.stringify(messages)); // Сохраняем в localStorage
                 messageInput.value = ''; // Очищаем поле ввода
-                loadMessages(); // Обновляем чат
+                loadMessages(); // Загружаем обновленные сообщения
             }
         }
 
-        // Загрузка сообщений
+        // Функция для загрузки сообщений
         function loadMessages() {
             const messages = JSON.parse(localStorage.getItem('messages')) || [];
             messagesContainer.innerHTML = ''; // Очищаем контейнер сообщений
-            messages.forEach(message => {
+            messages.forEach((message, index) => {
                 const messageDiv = document.createElement('div');
                 messageDiv.classList.add('message');
-                messageDiv.classList.add('you'); // Все сообщения отображаются как "Ваши"
-                messageDiv.textContent = Вы: ${message.text}; // Отображаем сообщение
+                if (index % 2 === 0) {
+                    messageDiv.classList.add('you'); // Ваши сообщения
+                    messageDiv.textContent = Вы: ${message.text};
+                } else {
+                    messageDiv.classList.add('other'); // Сообщения собеседника
+                    messageDiv.textContent = Собеседник: ${message.text};
+                }
                 messagesContainer.appendChild(messageDiv);
             });
-            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Прокручиваем вниз
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Прокручиваем чат вниз
         }
-
-        // Слушаем изменения в localStorage (для других вкладок)
+// Слушаем изменения в localStorage (для других вкладок)
         window.addEventListener('storage', function(event) {
             if (event.key === 'messages') {
-                loadMessages(); // Обновляем чат при изменении localStorage
+                loadMessages(); // Обновляем сообщения при изменении localStorage
             }
         });
-// Загружаем сообщения при загрузке страницы
+
+        // Загружаем сообщения при первой загрузке страницы
         loadMessages();
     </script>
 
