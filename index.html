@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Простой Чат</title>
+    <title>Простой Чат с Firebase</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -81,7 +81,28 @@
         </div>
     </div>
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
     <script>
+        // Вставьте вашу Firebase конфигурацию сюда
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Инициализация Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database(app);
+        const messagesRef = database.ref('messages'); // Ссылка на данные сообщений
+
+        // Элементы интерфейса
         const messagesContainer = document.getElementById('messagesContainer');
         const messageInput = document.getElementById('messageInput');
 
@@ -89,38 +110,28 @@
         function sendMessage() {
             const message = messageInput.value.trim();
             if (message) {
-                const messages = JSON.parse(localStorage.getItem('messages')) || [];
-                messages.push({ text: message }); // Добавляем новое сообщение
-                localStorage.setItem('messages', JSON.stringify(messages)); // Сохраняем в localStorage
+                // Отправка сообщения в Firebase
+                messagesRef.push({
+                    text: message,
+                    timestamp: Date.now()
+                });
                 messageInput.value = ''; // Очищаем поле ввода
-                loadMessages(); // Загружаем обновленные сообщения
             }
         }
 
-        // Функция для загрузки сообщений
+        // Функция для отображения сообщений
         function loadMessages() {
-            const messages = JSON.parse(localStorage.getItem('messages')) || [];
-            messagesContainer.innerHTML = ''; // Очищаем контейнер сообщений
-            messages.forEach((message, index) => {
+            messagesRef.on('child_added', function(snapshot) {
+                const message = snapshot.val();
                 const messageDiv = document.createElement('div');
-                messageDiv.classList.add('message');
-                if (index % 2 === 0) {
-                    messageDiv.classList.add('you'); // Ваши сообщения
-                    messageDiv.textContent = Вы: ${message.text};
-                } else {
-                    messageDiv.classList.add('other'); // Сообщения собеседника
-                    messageDiv.textContent = Собеседник: ${message.text};
-                }
+                messageDiv.
+classList.add('message');
+                messageDiv.classList.add('you'); // Все сообщения - это "ваши"
+                messageDiv.textContent = Вы: ${message.text};
                 messagesContainer.appendChild(messageDiv);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight; // Прокручиваем вниз
             });
-            messagesContainer.scrollTop = messagesContainer.scrollHeight; // Прокручиваем чат вниз
         }
-// Слушаем изменения в localStorage (для других вкладок)
-        window.addEventListener('storage', function(event) {
-            if (event.key === 'messages') {
-                loadMessages(); // Обновляем сообщения при изменении localStorage
-            }
-        });
 
         // Загружаем сообщения при первой загрузке страницы
         loadMessages();
